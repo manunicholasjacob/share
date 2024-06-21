@@ -1,3 +1,7 @@
+-- write a program in python to be implemented in linus on pci expresss
+
+-- use setpci and lspci to help do this 
+
 -- create a master bdf list
 
 -- search by vendor number
