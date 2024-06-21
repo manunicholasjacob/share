@@ -1,0 +1,59 @@
+import subprocess
+
+def run_command(command):
+    """ Run a shell command and return the output. """
+    result = subprocess.run(command, shell=True, capture_output=True, text=True)
+    return result.stdout
+
+def get_bdf_list():
+    """ Get a list of all BDFs using lspci. """
+    output = run_command("lspci")
+    bdf_list = [line.split()[0] for line in output.splitlines()]
+    return bdf_list
+
+def get_vendor_bdf_list(vendor_id):
+    """ Get a list of BDFs for a specific vendor using lspci. """
+    output = run_command(f"lspci -d {vendor_id}:")
+    vendor_bdf_list = [line.split()[0] for line in output.splitlines()]
+    return vendor_bdf_list
+
+def get_header_type(bdf):
+    """ Get the header type for a given BDF using setpci. """
+    header_type = run_command(f"setpci -s {bdf} HEADER_TYPE")
+    return header_type.strip()
+
+def get_secondary_bus_number(bdf):
+    """ Get the secondary bus number for a given BDF using setpci. """
+    secondary_bus_number = run_command(f"setpci -s {bdf} SECONDARY_BUS")
+    return secondary_bus_number.strip()
+
+def main():
+    vendor_id = "10de"  # NVIDIA GPU vendor ID
+    all_bdf_list = get_bdf_list()
+    gpu_bdf_list = get_vendor_bdf_list(vendor_id)
+
+    header_bdf_list = [bdf for bdf in all_bdf_list if get_header_type(bdf).startswith("01")]
+
+    upstream_lists = []
+
+    for gpu_bdf in gpu_bdf_list:
+        first_upstream_port = gpu_bdf.split(":")[0]
+        current_bdf = None
+
+        upstream_ports = []
+        while first_upstream_port:
+            upstream_ports.append(first_upstream_port)
+            current_bdf = next((bdf for bdf in header_bdf_list if get_secondary_bus_number(bdf) == first_upstream_port), None)
+            if current_bdf:
+                first_upstream_port = current_bdf.split(":")[0]
+            else:
+                first_upstream_port = None
+        
+        upstream_lists.append(upstream_ports)
+
+    for idx, gpu_bdf in enumerate(gpu_bdf_list):
+        print(f"GPU BDF: {gpu_bdf}")
+        print(f"Upstream Ports: {upstream_lists[idx]}")
+
+if __name__ == "__main__":
+    main()
