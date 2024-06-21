@@ -1,0 +1,20 @@
+-- create a master bdf list
+
+-- search by vendor number
+
+-- iterate through list of bdfs for vendor number - the vendor number of gpu is 10de
+
+-- create a list of bdfs which are only for gpus - gpu list
+
+-- create a list of bdfs for all those bdfs which have header number where the first bit is one (eg 01) - bdf list
+
+-- take each gpu bdf and take the first 2 numbers eg: 17:00.0 becomes 17 
+
+--  go through the bdf list and find the specific bdf whose secondary bus number is the same as the first 2 numbers of the gpu bdf this is the first upstream post 
+
+-- dow take the first 2 digits of the first upstream port and find the 2nd upstream port and for the same till there are no upstream ports
+
+-- do this for all the gpu bdfs in the gpu list
+
+-- Ouput using print statements a set of lists (one for each element of the gpu list) and the upstream list
+
